@@ -1,6 +1,6 @@
 let gulp = require('gulp'),
     browserSync = require('browser-sync').create(), // 创建Browsersync实例
-    SSI = require('browsersync-ssi'), //
+    watch = require('gulp-watch'),
     concat = require('gulp-concat'), //文件合并
     rename = require("gulp-rename"), //文件重命名
     uglify = require('gulp-uglify'), //js压缩
@@ -23,26 +23,27 @@ let gulp = require('gulp'),
 
 let config = require('./config');
 
-gulp.task('dev', function () {
+gulp.task('watch', function () {
     // BrowserSync 监听 dist 目录
     browserSync.init({
         server: {
+            port:config.serverPort,
             baseDir: [config.dest],
-            middleware: SSI({
-                baseDir: config.dest,
-                ext: '.shtml',
-                version: '2.10.0'
-            })
+            // middleware: SSI({
+            //     baseDir: config.dest,
+            //     ext: '.shtml',
+            //     version: '2.10.0'
+            // })
         }
     });
     // watch -- 将文件编译到 dist 目录下, 触发 BrowserSync
-    gulp.watch(config.less.all, ['less']);
-    gulp.watch(config.js.src, ['js']);
-    gulp.watch(config.html.src, ['html']);
-    gulp.watch(config.img.src, ['optimizeImg']);
-    gulp.watch(config.copy.src, ['copy']);
+    watch(config.less.all, ['less']);
+    watch(config.js.src, ['js']);
+    watch(config.html.src, ['html']);
+    watch(config.img.src, ['optimizeImg']);
+    watch(config.copy.src, ['copy']);
     // browserSync.reload -- 浏览器重载
-    gulp.watch(config.html.dest).on("change", browserSync.reload);
+    watch(config.html.dest).on("change", browserSync.reload);
 });
 
 //less文件处理
