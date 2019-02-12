@@ -7,5 +7,8 @@
     "build": "tsc GTools.ts;node GTools.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "gulp": "^4.0.0"
+  }
 }
