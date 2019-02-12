@@ -27,10 +27,10 @@ gulp.task('watch', function () {
     // BrowserSync 监听 dist 目录
     browserSync.init({
         server: {
-            port:config.serverPort,
-            baseDir: [config.dest],
+            port: config.serverPort,
+            baseDir: [config.outDir],
             // middleware: SSI({
-            //     baseDir: config.dest,
+            //     baseDir: config.outDir,
             //     ext: '.shtml',
             //     version: '2.10.0'
             // })
@@ -40,13 +40,13 @@ gulp.task('watch', function () {
     watch(config.less.all, ['less']);
     watch(config.js.src, ['js']);
     watch(config.html.src, ['html']);
-    watch(config.img.src, ['optimizeImg']);
+    watch(config.img.src, ['img']);
     watch(config.copy.src, ['copy']);
     // browserSync.reload -- 浏览器重载
-    watch(config.html.dest).on("change", browserSync.reload);
+    watch(config.html.outDir).on("change", browserSync.reload);
 });
 
-//less文件处理
+// less文件处理
 gulp.task('less', function () {
     return gulp.src(config.less.all)
         .pipe(plumber({
@@ -67,11 +67,11 @@ gulp.task('less', function () {
             suffix: ".min", // 后缀
             extname: ".css" // 扩展名
         }))
-        .pipe(gulp.dest(config.less.dest))
+        .pipe(gulp.dest(config.less.outDir))
         .pipe(browserSync.stream());
 });
 
-//js文件处理
+// js文件处理
 gulp.task('js', function () {
     return gulp.src(config.js.src)
         .pipe(plumber({
@@ -92,7 +92,7 @@ gulp.task('js', function () {
             suffix: ".min", // 后缀
             extname: ".js" // 扩展名
         }))
-        .pipe(gulp.dest(config.js.dest))
+        .pipe(gulp.dest(config.js.outDir))
         .pipe(browserSync.stream());
 });
 
@@ -108,7 +108,8 @@ gulp.task('html', function () {
             basepath: '@file',
             indent: true
         }))
-        .pipe(gulp.dest(config.html.dest))
+        .pipe(htmlminify())
+        .pipe(gulp.dest(config.html.outDir))
         .pipe(browserSync.stream());
 });
 
@@ -118,18 +119,27 @@ gulp.task('img', function () {
         .pipe(plumber({
             errorHandler: notify.onError('Error:<%=error.message%>')
         }))
-        .pipe(imagemin())
-        .pipe(gulp.dest(config.img.dest));
+        .pipe(imagemin({
+            optimizationLevel: 0,
+            progressive: false,
+            svgoPlugins: [{
+                removeViewBox: false
+            }],
+            use: [pngquant({
+                quality: '100'
+            })]
+        }))
+        .pipe(gulp.dest(config.img.outDir));
 });
 
-// 复制 静态文件 -- 同时排除 task(js、html、optimizeImg)等任务的文件
+// 复制静态文件 -- 同时排除配置ignore目录
 gulp.task('copy', function () {
     // gulp.src(config.copy.src)
-    return gulp.src([config.copy.src, "!" + config.html.src, "!" + config.js.src, "!" + config.less.all])
+    return gulp.src([config.copy.src].concat(config.copy.ignore))
         .pipe(plumber({
             errorHandler: notify.onError('Error:<%=error.message%>')
         }))
-        .pipe(gulp.dest(config.copy.dest));
+        .pipe(gulp.dest(config.copy.outDir));
 });
 
 // CSS生成文件hash编码 并 生成 rev-manifest.json文件名对照映射
@@ -139,9 +149,8 @@ gulp.task('revCss', function () {
             errorHandler: notify.onError('Error:<%=error.message%>')
         }))
         .pipe(rev()) // 设置 hash 值
-        .pipe(gulp.dest(config.rev.revCss.dest))
         .pipe(rev.manifest()) // 生产 hash 值得 json 文件
-        .pipe(gulp.dest(config.rev.revCss.revDest)); // 保存 hash 值得 json 文件
+        .pipe(gulp.dest(config.rev.revCss.revoutDir)); // 保存 hash 值得 json 文件
 });
 
 // js生成文件hash编码 并 生成 rev-manifest.json文件名对照映射
@@ -151,26 +160,25 @@ gulp.task('revJs', function () {
             errorHandler: notify.onError('Error:<%=error.message%>')
         }))
         .pipe(rev()) // 设置 hash 值
-        .pipe(gulp.dest(config.rev.revJs.dest))
         .pipe(rev.manifest())
-        .pipe(gulp.dest(config.rev.revJs.revDest));
+        .pipe(gulp.dest(config.rev.revJs.revoutDir));
 });
 
 //Html替换css、js文件版本
 gulp.task('revHtml', function () {
-    return gulp.src([config.dest + "/rev/**/*.json", config.dest + "/*.html"])
+    return gulp.src([config.outDir + "/rev/**/*.json", config.outDir + "/*.html"])
         .pipe(plumber({
             errorHandler: notify.onError('Error:<%=error.message%>')
         }))
         .pipe(revCollector({ // Html -- 替换 css、js文件版本
             replaceReved: true
         }))
-        .pipe(gulp.dest(config.dest));
+        .pipe(gulp.dest(config.outDir));
 });
 
 // 清空目标文件
 gulp.task('clean', function () {
-    return gulp.src([config.dest], {
+    return gulp.src([config.outDir], {
             read: false
         })
         .pipe(clean());
@@ -178,7 +186,7 @@ gulp.task('clean', function () {
 
 // publish -- 打包发布目标文件
 gulp.task('push', function () {
-    return gulp.src(config.dest + '/**/*')
+    return gulp.src(config.outDir + '/**/*')
         .pipe(plumber({
             errorHandler: notify.onError('Error:<%=error.message%>')
         }))
@@ -193,7 +201,7 @@ gulp.task('build', function (done) {
         ['revCss'],
         ['revJs'],
         ['revHtml'],
-        ['publish'],
+        // ['push'],
         done);
 });
 
@@ -204,7 +212,7 @@ gulp.task('dev', function (done) {
         ['clean'],
         // ['optimizeImg', 'copy', 'html', 'js', 'sass', 'less'],
         ['copy'],
-        ['optimizeImg', 'html', 'js', 'less'],
+        ['img', 'html', 'js', 'less'],
         ['serve'],
         done);
 });
