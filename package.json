@@ -1,0 +1,11 @@
+{
+  "name": "gtools",
+  "version": "1.0.0",
+  "description": "js utils",
+  "main": "GTools.js",
+  "scripts": {
+    "build": "tsc GTools.ts;node GTools.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
