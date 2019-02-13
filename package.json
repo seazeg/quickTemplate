@@ -1,12 +1,12 @@
 {
-  "name": "gtools",
+  "name": "gulpproject",
   "version": "1.0.0",
-  "description": "js utils",
-  "main": "GTools.js",
+  "description": "gulp project",
   "scripts": {
-    "build": "tsc GTools.ts;node GTools.js"
+    "dev":"gulp dev",
+    "build": "gulp build"
   },
-  "author": "",
+  "author": "Evan.G",
   "license": "ISC",
   "dependencies": {
     "@babel/core": "^7.2.2",
