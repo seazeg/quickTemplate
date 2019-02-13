@@ -17,15 +17,16 @@ let gulp = require('gulp'),
     notify = require('gulp-notify'), // 当发生异常时提示错误
     fileinclude = require('gulp-file-include'), //include文件
     zip = require('gulp-zip'), //zip文件
-    clean = require('del'), //文件清理
-    runSequence = require('run-sequence'), // 同步执行任务
+    del = require('del'), //文件清理
+    runSequence = require('run-sequence').use(gulp), // 同步执行任务
     babel = require('gulp-babel') //es6=>es5
 
 let config = require('./config');
 
+// BrowserSync 监听 dist 目录
 gulp.task('watch', function () {
-    // BrowserSync 监听 dist 目录
     browserSync.init({
+        port: config.serverPort,
         server: {
             port: config.serverPort,
             baseDir: [config.outDir],
@@ -98,7 +99,6 @@ gulp.task('js', function () {
 
 // html文件处理
 gulp.task('html', function () {
-    // 排除 publicHTML 下的 html
     return gulp.src([config.html.src].concat(config.html.ignore))
         .pipe(plumber({
             errorHandler: notify.onError('Error:<%=error.message%>')
@@ -139,7 +139,7 @@ gulp.task('copy', function () {
         .pipe(plumber({
             errorHandler: notify.onError('Error:<%=error.message%>')
         }))
-        .pipe(gulp.dest(config.copy.outDir));
+        .pipe(gulp.dest(config.copy.outDir))
 });
 
 // CSS生成文件hash编码 并 生成 rev-manifest.json文件名对照映射
@@ -178,10 +178,7 @@ gulp.task('revHtml', function () {
 
 // 清空目标文件
 gulp.task('clean', function () {
-    return gulp.src([config.outDir], {
-            read: false
-        })
-        .pipe(clean());
+    return del([config.outDir]);
 });
 
 // publish -- 打包发布目标文件
@@ -196,7 +193,6 @@ gulp.task('push', function () {
 
 // build 构建
 gulp.task('build', function (done) {
-    condition = false;
     runSequence(
         ['revCss'],
         ['revJs'],
@@ -207,13 +203,11 @@ gulp.task('build', function (done) {
 
 // 开发 dev 构建
 gulp.task('dev', function (done) {
-    condition = false;
     runSequence(
         ['clean'],
-        // ['optimizeImg', 'copy', 'html', 'js', 'sass', 'less'],
         ['copy'],
         ['img', 'html', 'js', 'less'],
-        ['serve'],
+        ['watch'],
         done);
 });
 

@@ -13,7 +13,7 @@ module.exports = {
     html: {
         src: src + "/*.{html,shtml}",
         outDir: outDir,
-        ignore: ["!" + src + "/xxxx/*.html"] //排除目录
+        ignore: ["!" + src + "/public/*.html"] //排除目录
     },
     img: {
         src: src + '/assets/images/*.{png,jpg,jpeg,gif,ico}',
@@ -29,7 +29,7 @@ module.exports = {
     copy: {
         src: src + '/**',
         outDir: outDir,
-        ignore: ["!" + src + "/xxxx/*.html"] //排除目录
+        ignore: ["!" + src + "/public/*.html","!" + src + "/public/","!" + src + "/public"], //排除目录
     },
     rev: {
         revCss: {
