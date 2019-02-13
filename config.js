@@ -29,7 +29,12 @@ module.exports = {
     copy: {
         src: src + '/**',
         outDir: outDir,
-        ignore: ["!" + src + "/public/*.html","!" + src + "/public/","!" + src + "/public"], //排除目录
+        ignore: [
+            "!" + src + "/public/*.html",
+            "!" + src + "/public/",
+            "!" + src + "/assets/less/*.less",
+            "!" + src + "/assets/less"
+        ], //排除目录
     },
     rev: {
         revCss: {

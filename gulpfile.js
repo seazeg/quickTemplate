@@ -182,7 +182,7 @@ gulp.task('clean', function () {
 });
 
 // publish -- 打包发布目标文件
-gulp.task('push', function () {
+gulp.task('publish', function () {
     return gulp.src(config.outDir + '/**/*')
         .pipe(plumber({
             errorHandler: notify.onError('Error:<%=error.message%>')
@@ -197,7 +197,7 @@ gulp.task('build', function (done) {
         ['revCss'],
         ['revJs'],
         ['revHtml'],
-        // ['push'],
+        ['publish'],
         done);
 });
 
