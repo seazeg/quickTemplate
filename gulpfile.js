@@ -213,3 +213,9 @@ gulp.task('dev', function (done) {
 
 // 编辑默认任务
 gulp.task('default', ['dev']);
+
+// 帮助
+gulp.task('help', function () {
+    console.log('gulp dev ---本地调试');
+    console.log('gulp build ---生产打包构建');
+});
