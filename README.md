@@ -8,7 +8,5 @@ gulp dev
 # 生产环境打包
 gulp build
 
-# 帮助
-gulp help
 ```
 
